@@ -180,6 +180,22 @@ impl Key {
     fn segment(&self) -> usize {
         (self.0.get() & Self::SEGMENT_MASK) as usize - 1
     }
+
+    /// Converts key to inner value
+    ///
+    /// # Safety
+    /// Use it when you really know what you are doing
+    pub unsafe fn into_inner(self) -> NonZeroU32 {
+        self.0
+    }
+
+    /// Converts key to inner value. Use
+    ///
+    /// # Safety
+    /// Use it when you really know what you are doing
+    pub unsafe fn from_u32(val: NonZeroU32) -> Self {
+        Self(val)
+    }
 }
 
 impl Debug for Key {
@@ -220,7 +236,9 @@ mod test {
         let mut slab = Slab::new();
         let bound = 2_000_000;
 
-        let keys = (1..=bound).map(|x| slab.add(x).unwrap()).collect::<Vec<_>>();
+        let keys = (1..=bound)
+            .map(|x| slab.add(x).unwrap())
+            .collect::<Vec<_>>();
 
         let sum: u64 = keys.iter().map(|x| slab.get(x).unwrap()).sum();
         assert_eq!(sum, (bound * (bound + 1)) / 2);
@@ -230,9 +248,7 @@ mod test {
     }
 
     #[test]
-    fn fuzz() {
-        
-    }
+    fn fuzz() {}
 
     // TODO: more tests =)
 }
